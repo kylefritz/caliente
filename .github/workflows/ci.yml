@@ -1,0 +1,45 @@
+name: ci
+# Run Rails tests & Jest. If pass & on master, deploy to Heroku.
+on: push
+jobs:
+  ci:
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:11.5
+        ports: ["5432:5432"]
+        options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Install PostgreSQL client
+        run: sudo apt-get -yqq install libpq-dev
+
+      - name: Increase the amount of inotify watchers
+        # started getting this error around 20-03-01
+        # https://github.com/guard/listen/wiki/Increasing-the-amount-of-inotify-watchers
+        run: echo fs.inotify.max_user_watches=524288 | sudo tee -a /etc/sysctl.conf && sudo sysctl -p
+
+      - uses: ruby/setup-ruby@v1
+        with:
+          bundler-cache: true
+
+      - name: rails db:setup test test:system
+        env:
+          PGHOST: localhost
+          PGUSER: postgres
+          RAILS_ENV: test
+          RUBYOPT: "-W:no-deprecated -W:no-experimental"
+        run: |
+          bin/rails db:setup
+          bin/rails test
+          bin/rails test:system
+
+      # - name: heroku deploy motzi
+      #   env:
+      #     HEROKU_API_TOKEN: ${{ secrets.HEROKU_API_TOKEN }}
+      #     HEROKU_APP_NAME: motzibread
+      #   if: github.ref == 'refs/heads/master' && job.status == 'success'
+      #   run: git push -f https://heroku:$HEROKU_API_TOKEN@git.heroku.com/$HEROKU_APP_NAME.git origin/master:master

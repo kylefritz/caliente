@@ -4,11 +4,13 @@ git_source(:github) { |repo| "https://github.com/#{repo}.git" }
 ruby '3.0.0'
 
 gem 'bootsnap', '>= 1.4.4', require: false
+gem 'bootstrap', '~> 5.0.0.beta1'
 gem 'hotwire-rails' # Hotwire is an alternative approach to building modern web applications without using much JavaScript by sending HTML instead of JSON over the wire
 gem 'jbuilder', '~> 2.7' # Build JSON APIs with ease. Read more: https://github.com/rails/jbuilder
 gem 'pg', '~> 1.1' # Use postgresql as the database for Active Record
 gem 'puma', '~> 5.0' # Use Puma as the app server
 gem 'rails', '~> 6.1.1' # Bundle edge Rails instead: gem 'rails', github: 'rails/rails'
+gem 'rexml' # required for ruby 3+, https://stackoverflow.com/questions/65479863/rails-6-1-what-is-preventing-tests-from-running
 gem 'sass-rails', '>= 6' # Use SCSS for stylesheets
 
 group :development, :test do
